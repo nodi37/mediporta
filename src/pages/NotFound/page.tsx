@@ -1,5 +1,8 @@
 import { FC } from "react";
+import styles from "./component.module.css";
 
-const NotFoundPage: FC = () => <h3>Page not found</h3>;
+const NotFoundPage: FC = () => {
+  return <h3 className={styles["heading"]}>Page not found</h3>;
+};
 
 export default NotFoundPage;

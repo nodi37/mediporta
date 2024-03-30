@@ -4,21 +4,31 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 
 // Pages
-import HomePage, { HomePageChildren } from "./pages/Home";
+
 import NotFoundPage from "./pages/NotFound";
 
 // Styles
 import "./index.css";
+import { appRoutes } from "./pages/App/children";
+import AppPage from "./pages/App";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <HomePage />,
+    element: <AppPage />,
     errorElement: <NotFoundPage />,
     children: [
       {
         errorElement: <NotFoundPage />,
-        children: HomePageChildren,
+        children: [
+          ...appRoutes,
+          {
+            path: "*",
+            loader: () => {
+              throw new Response("Not Found", { status: 404 });
+            },
+          },
+        ],
       },
     ],
   },
