@@ -20,8 +20,11 @@ body {
   width: 100vw;
   height: 100svh;
   display: flex;
+  overflow: hidden;
 }
 
 #root {
   flex: 1;
+  display: flex;
+  overflow: hidden;
 }
