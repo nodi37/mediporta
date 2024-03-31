@@ -1,9 +1,9 @@
 import { InfoOutlined, Tag } from "@mui/icons-material";
 import SecondPage from "./Second";
-import TagsPage from "./Tags/page";
+import TagsPage from "./Tags";
 import { RouteObject } from "react-router-dom";
 import { ReactNode } from "react";
-import { NavigationListItemProps } from "../../../components/molecules/NavigationListItem/component.types";
+import { NavigationListItemProps } from "@/components/molecules/NavigationListItem/component.types";
 
 type ChildrenData = {
   route: RouteObject;

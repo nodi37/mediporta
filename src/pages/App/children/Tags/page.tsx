@@ -1,70 +1,118 @@
-import { ChangeEvent, FC, useMemo, useState } from "react";
+import { FC, useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
-import { fetchTags } from "../../../../api/tags.api";
-import { Button, TextField } from "@mui/material";
-import styles from "./component.module.css";
+import { fetchTags } from "@/api/tags.api";
+import { useSearchParams } from "react-router-dom";
+import styles from "./page.module.css";
+import Pagination from "@/components/organisms/Pagination";
+import NumberInput from "@/components/atoms/NumerInput";
+import LoadingIndicator from "@/components/atoms/LoadingIndicator";
+import ErrorMessage from "@/components/molecules/ErrorMessage";
+import DataTable from "@/components/organisms/DataTable";
+import SelectInput from "@/components/atoms/SelectInput";
+import useUpadateParam from "@/hooks/use-update-param.hook";
 
 const TagsPage: FC = () => {
+  // Hooks
   const queryClient = useQueryClient();
-  const [page, setPage] = useState(1);
-  const [limit, setLimit] = useState(10);
-  const [sortOrder, setSortOrder] = useState<"desc" | "asc">("desc");
+  const { updateParam } = useUpadateParam();
 
+  // useState
+  const [isWaiting, setIsWaiting] = useState(false);
+  const [searchParams] = useSearchParams();
+
+  // State
+  const page = Number(searchParams.get("page") ?? 1);
+  const perPage = Number(searchParams.get("perPage") ?? 10);
+  const sortBy = (searchParams.get("sortBy") ?? "name") as "name" | "popular";
+  const order = (searchParams.get("order") ?? "asc") as "asc" | "desc";
+
+  // Query
   const {
     data: tags,
     isLoading,
     isError,
   } = useQuery({
-    queryFn: () => fetchTags({ page, limit, order: "asc", sortBy: "name" }),
-    queryKey: ["tags", { page, limit }],
+    queryFn: () => fetchTags({ page, perPage, order, sortBy }),
+    queryKey: ["tags", { page, perPage, sortBy, order }],
   });
 
-  const changePage = (page: number) => {
-    setPage(page);
-    queryClient.invalidateQueries("tags");
-  };
+  // Query refresh handler
+  useEffect(() => {
+    setIsWaiting(true);
+    const timeoutId = setTimeout(() => {
+      queryClient.invalidateQueries("tags");
+      setIsWaiting(false);
+    }, 500);
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [searchParams]);
 
-  const tagsData = useMemo(() => tags?.items, [tags]);
-  const hasNewPage = useMemo(() => tags?.hasNextPage, [tags]);
+  // Data computing
+  const tagsData = useMemo(
+    () =>
+      tags?.items.map((tag) => ({
+        title: tag.name,
+        content: [tag.count.toString()],
+      })),
+    [tags]
+  );
+  const hasNextPage = useMemo(() => tags?.hasNextPage, [tags]);
+
+  // Config
+  const sortByOptions = [
+    { title: "Name", value: "name" },
+    { title: "Count", value: "count" },
+  ];
+  const orderOptions = [
+    { title: "Ascending", value: "asc" },
+    { title: "Descending", value: "desc" },
+  ];
+  const dataTableTitleConfig = {
+    main: "Tags",
+    data: ["Count"],
+  };
 
   return (
     <div className={styles["wrapper"]}>
       <div className={styles["settings"]}>
-        <TextField
-          type="number"
+        <NumberInput
+          positive
+          value={perPage.toString()}
+          defaultValue={10}
           label="Per page:"
-          value={limit}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => {
-            // Input type number will let only number values
-            setLimit(Number(e.target.value));
-          }}
+          onChange={(value) => updateParam("perPage", value.toString())}
         />
+        <div className={styles["sort-settings"]}>
+          <SelectInput
+            label="Sort by"
+            value={sortBy}
+            items={sortByOptions}
+            onChange={(value) => {
+              updateParam("sortBy", value);
+            }}
+          />
+          <SelectInput
+            label="Sort order"
+            value={order}
+            items={orderOptions}
+            onChange={(value) => {
+              updateParam("order", value);
+            }}
+          />
+        </div>
       </div>
-      {isLoading && <div>Is loading...</div>}
-      {isError && <div>Is error...</div>}
-      {!isLoading && !isError && (
+      {(isLoading || isWaiting) && <LoadingIndicator />}
+      {isError && <ErrorMessage />}
+      {!isLoading && !isError && !isWaiting && (
         <div className={styles["content"]}>
-          {tagsData?.map((tag, index) => (
-            <p key={index}>{JSON.stringify(tag)}</p>
-          ))}
+          <p style={{ marginBottom: 10 }}>
+            {tagsData?.length} results on this page
+          </p>
+          <DataTable title={dataTableTitleConfig} rows={tagsData ?? []} />
         </div>
       )}
-      <div className={styles["pagination"]}>
-        <Button
-          variant="contained"
-          disabled={page == 1}
-          onClick={() => changePage(page - 1)}
-        >
-          Previous page
-        </Button>
-        <Button
-          variant="contained"
-          disabled={!hasNewPage}
-          onClick={() => changePage(page + 1)}
-        >
-          Next page
-        </Button>
-      </div>
+      <Pagination hasNextPage={hasNextPage ?? false} />
     </div>
   );
 };

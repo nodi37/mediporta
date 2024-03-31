@@ -1,6 +1,6 @@
 type FetchTagsArgs = {
   page: number;
-  limit: number;
+  perPage: number;
   order: "asc" | "desc";
   sortBy: "popular" | "name";
 };
@@ -20,12 +20,12 @@ const apiUrl = "https://api.stackexchange.com/2.3/";
 
 const fetchTags = async ({
   page,
-  limit,
+  perPage: max,
   order,
   sortBy,
 }: FetchTagsArgs): Promise<FetchTagsResponse> => {
   const response = await fetch(
-    `${apiUrl}tags?page=${page}&max=${limit}&order=${order}&sort=${sortBy}&site=stackoverflow`
+    `${apiUrl}tags?page=${page}&max=${max}&order=${order}&sort=${sortBy}&site=stackoverflow`
   );
   const data = (await response.json()) as {
     items: Array<TagData & Record<string, unknown>>;
