@@ -1,4 +1,4 @@
-import { FC, useEffect, useMemo, useRef, useState } from "react";
+import { FC, useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "react-query";
 import { fetchTags } from "@/api/tags.api";
 import { useSearchParams } from "react-router-dom";
@@ -62,7 +62,7 @@ const TagsPage: FC = () => {
   // Config
   const sortByOptions = [
     { title: "Name", value: "name" },
-    { title: "Count", value: "count" },
+    { title: "Count", value: "popular" },
   ];
   const orderOptions = [
     { title: "Ascending", value: "asc" },
@@ -107,7 +107,7 @@ const TagsPage: FC = () => {
       {!isLoading && !isError && !isWaiting && (
         <div className={styles["content"]}>
           <p style={{ marginBottom: 10 }}>
-            {tagsData?.length} results on this page
+            {tagsData?.length ?? 0} results on this page
           </p>
           <DataTable title={dataTableTitleConfig} rows={tagsData ?? []} />
         </div>

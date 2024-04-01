@@ -12,7 +12,8 @@ const Pagination: FC<PaginationProps> = (props) => {
   const { hasNextPage } = props;
   const [searchParams] = useSearchParams();
   const { updateParam } = useUpadateParam();
-  const hasPreviousPage = Number(searchParams.get("page") ?? 1) > 1;
+  const currentPage = Number(searchParams.get("page") ?? 1);
+  const hasPreviousPage = currentPage > 1;
   const updatePage = (toNextPage?: boolean) => {
     const queryValue = Number(searchParams.get("page") ?? 1);
     const currPage = !isNaN(queryValue) ? queryValue : 1;
@@ -27,14 +28,15 @@ const Pagination: FC<PaginationProps> = (props) => {
         variant="contained"
         disabled={!hasPreviousPage}
       >
-        Previous page
+        Back
       </Button>
+      <span>{currentPage}</span>
       <Button
         onClick={() => updatePage(true)}
         variant="contained"
         disabled={!hasNextPage}
       >
-        Next page
+        Next
       </Button>
     </div>
   );
