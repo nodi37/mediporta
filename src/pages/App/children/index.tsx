@@ -1,11 +1,11 @@
-import { InfoOutlined, Tag } from "@mui/icons-material";
+import { InfoOutlined } from "@mui/icons-material";
 import SecondPage from "./Second";
-import TagsPage from "./Tags";
 import { RouteObject } from "react-router-dom";
 import { ReactNode } from "react";
 import { NavigationListItemProps } from "@/components/molecules/NavigationListItem/component.types";
+import tagsPageConfig from "./Tags";
 
-type ChildrenData = {
+export type ChildrenPageData = {
   route: RouteObject;
   navigation: {
     text: string;
@@ -13,17 +13,10 @@ type ChildrenData = {
   };
 };
 
-const children: Array<ChildrenData> = [
-  {
-    route: {
-      path: "tags",
-      element: <TagsPage />,
-    },
-    navigation: {
-      text: "Tags",
-      icon: <Tag />,
-    },
-  },
+// I would move all the configs to page index files
+// Like the tags page
+const children: Array<ChildrenPageData> = [
+  tagsPageConfig,
   {
     route: {
       path: "second",
