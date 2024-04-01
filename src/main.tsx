@@ -8,7 +8,9 @@ import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import NotFoundPage from "./pages/NotFound";
 
 // Styles
-import "./index.css";
+import "./global.css";
+
+// Routing
 import { appRoutes } from "./pages/App/children";
 import AppPage from "./pages/App";
 
